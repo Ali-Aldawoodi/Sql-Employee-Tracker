@@ -41,8 +41,9 @@
 
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+// figlet
 
-const PORT = process.env.PORT || 3001;
+// const PORT = process.env.PORT || 3001;
 
 const db = mysql.createConnection(
     {
@@ -81,24 +82,31 @@ inquirer
             case 'View all departments':
                 allDept();
                 break;
+
             case 'View all roles':
                 allRoles();
                 break;
+
             case 'View all Employees':
                 allEmployees();
                 break;
+
             case 'Add a department':
-                console.log(answer);
+                addDept();
                 break;
+
             case 'Add a role':
-                console.log(answer);
+                addRole();
                 break;
+
             case 'Add an employee':
-                console.log(answer);
+                addEmployee();
                 break;
+
             case 'Update an employee role':
-                console.log(answer);
+                updateEmployee();
                 break;
+
             case 'Quit':
                 break;
             default:
@@ -112,42 +120,202 @@ inquirer
 // functions here
 // permisify
 function allDept() {
-    const sql = 'SELECT * FROM departments';
+    const sql = 'SELECT * FROM department';
 
     db.query(sql, (err, rows) => {
         if (err) {
             console.error(err)
         }
-        console.log(rows)
+        console.table(rows)
+        init();
     })
-    .then(
-        init()
-    )
+    
 }
 
 function allRoles() {
-    const sql = 'SELECT * FROM roles';
+    const sql = 'SELECT * FROM role';
 
     db.query(sql, (err, rows) => {
         if (err) {
             console.error(err)
         }
-        console.log(rows)
+        console.table(rows)
+         init();
     })
-   init();
+  
 }
 
 function allEmployees() {
-    const sql = 'SELECT * FROM employees';
+    const sql = 'SELECT * FROM employee';
 
     db.query(sql, (err, rows) => {
         if (err) {
             console.error(err)
         }
-        console.log(rows)
+        console.table(rows)
+        init();
     })
-   init();
+   
 }
 
- 
+function addDept() {
+    const sql = 'INSERT INTO department (department_name) VALUES (?)';
+    const sqlShow = 'SELECT * FROM department';
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'departmentName',
+                message: 'What is the name of the department you would like to add?'
+            }
+        ])
+        .then (answer => {
+    db.query(sql, [answer.departmentName], (err, result) => {
+        if (err) {
+            console.error(err)
+        }        
+    })
+
+    db.query(sqlShow, (err, result) => {
+        if (err) {
+            console.error(err);
+        }
+        console.table(result);
+        init();
+    })
+   
+});
+};
+
+function addRole() {
+    const sql = 'INSERT INTO role (job_title, department_id, salary) VALUES (?, ?, ?)';
+    const sqlShow = 'SELECT * FROM role';
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'jobName',
+                message: 'Enter the name for the role that you would like to add.'
+            },
+            {
+                type: 'input',
+                name: 'department',
+                message: 'Enter the department for the role that you would like to add.'
+            },
+            {
+                type: 'number',
+                name: 'salary',
+                message: 'Enter the salary for the role that you would like to add.'
+            }
+        ])
+        .then (answer => {
+    db.query(sql, [answer.jobName, answer.department, answer.salary, ], (err, rows) => {
+        if (err) {
+            console.error('There is an error here', err)
+        } else {
+            console.log ('Good to go !');
+        } 
+    })
+
+    db.query(sqlShow, (err, result) => {
+        if (err) {
+            console.error(err)
+        }
+        console.table(result)
+        init();
+    })
+});
+};
+
+function addEmployee() {
+    const sql = 'INSERT INTO employee (first_name, last_name, job_id, manager_id) VALUES (?,?,?,?)'
+    const sqlShow = 'SELECT * FROM employee';
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: 'Enter the first name for the employee that you would like to add.'
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: 'Enter the last name for the employee that you would like to add.'
+            },
+            {
+                type: 'number',
+                name: 'jobId',
+                message: 'Enter the job ID for the employee that you would like to add.'
+            },
+            {
+                type: 'number',
+                name: 'managerId',
+                message: 'Enter the employees managers ID that you would like to add.'
+            },
+        ])
+
+        .then (answer => {
+    db.query(sql, [answer.firstName, answer.lastName, answer.jobId, answer.managerId], (err, rows) => {
+        if (err) {
+            console.error(err)
+        } else {
+            console.log('Good to go!')
+        }
+    })
+
+    db.query(sqlShow, (err, result) => {
+        if (err) {
+            console.error(err)
+        } console.table(result)
+        init();
+    })
+   });
+};
+
+
+
+function updateEmployee() {
+    const sql = 'UPDATE employee SET job_id = (?) WHERE first_name = (?)';
+    const sqlShow = 'SELECT * FROM employee';
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'firstName',
+                message: 'Enter the first name for the employee that you would like to update.'
+            },
+            {
+                type: 'number',
+                name: 'jobId',
+                message: 'Enter the job ID for the employee that you would like to update.'
+            },
+            // {
+            //     type: 'input',
+            //     name: 'lastName',
+            //     message: 'Enter the last name for the employee that you would like to update.'
+            // },
+        ])
+
+        .then (answer => { 
+    db.query(sql, [answer.jobId, answer.firstName], (err, rows) => {
+        if (err) {
+            console.error(err)
+        } else {
+            console.log('Good to go!')
+        }
+    })
+
+    db.query(sqlShow, (err, result) =>{
+        if (err) {
+            console.error(err)
+        } console.table(result)
+        init();
+    })
+    })
+};
+
+
 init();
