@@ -1,7 +1,5 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-// figlet
-
 
 const db = mysql.createConnection(
     {
@@ -32,7 +30,7 @@ function init() {
                 ]
             }
         ])
-        // To be able to select each option, then produce required tables. 
+
         .then(answers => {
             const answer = answers.choices
 
@@ -75,8 +73,7 @@ function init() {
         });
 };
 
-// functions here
-// permisify
+
 function allDept() {
     const sql = 'SELECT * FROM department';
 
@@ -255,11 +252,6 @@ function updateEmployee() {
                 name: 'jobId',
                 message: 'Enter the job ID for the employee that you would like to update.'
             },
-            // {
-            //     type: 'input',
-            //     name: 'lastName',
-            //     message: 'Enter the last name for the employee that you would like to update.'
-            // },
         ])
 
         .then(answer => {
